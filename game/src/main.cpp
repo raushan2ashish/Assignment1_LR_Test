@@ -16,6 +16,8 @@ constexpr float BULLET_SPEED = 400.0f;
 constexpr float BULLET_LIFE_TIME = 1.0f;
 
 constexpr float TURRET_RADIUS = TILE_SIZE * 1.4f;// ---> added radius for turrets <---
+constexpr float TURRET_RANGE = 200.0f; //---> this defines the ranfe of the turrets <---
+constexpr float TURRET_SHOOT_COOLDOWN = 0.5f; //---> cooldown time for the turrets <---
 constexpr int MAX_TURRETS = 5;                   // ---> added number of maximum turrets <---
 
 enum TileType : int
@@ -114,6 +116,7 @@ struct Bullet
 struct Turret
 {
     Vector2 position = { 0, 0 };
+    float shootTimer = 0.0f;// ---> added shooting countdown for each turret <---
 };
 
 int main()
@@ -177,8 +180,30 @@ int main()
                     turrets.push_back(newTurret);
                 }
             }
-        }                                                //--->end<---end
+        }                                                
+        //---> find target to shoot<---
+        for (auto& turret : turrets)
+        {
+            turret.shootTimer += dt;//--->this increses the shoot timer<---start
+            // Check if the cooldown is over
+            if (turret.shootTimer >= TURRET_SHOOT_COOLDOWN)//--->when cooldown is over<---
+            {
+                
+                float distance = Vector2Distance(turret.position, enemyPosition);//--->to check distance b/w turret and enemy<---
+ 
+                if (distance < TURRET_RANGE)//--->shoot when enemy is in range<---
+                {
+                    
+                    turret.shootTimer = 0.0f;
 
+                    //--->to create new bullet<---
+                    Bullet newBullet;
+                    newBullet.position = turret.position;
+                    newBullet.direction = Vector2Normalize(enemyPosition - turret.position);
+                    bullets.push_back(newBullet);
+                }
+            }
+        }
         // 1) Update bullets
         for (Bullet& bullet : bullets)
         {
