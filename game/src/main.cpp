@@ -15,6 +15,9 @@ constexpr float BULLET_RADIUS = 10.0f;
 constexpr float BULLET_SPEED = 400.0f;
 constexpr float BULLET_LIFE_TIME = 1.0f;
 
+constexpr float TURRET_RADIUS = TILE_SIZE * 1.4f;// ---> added radius for turrets <---
+constexpr int MAX_TURRETS = 5;                   // ---> added number of maximum turrets <---
+
 enum TileType : int
 {
     GRASS,      // Marks unoccupied space, can be overwritten 
@@ -107,6 +110,12 @@ struct Bullet
     bool destroy = false;
 };
 
+// ---> added Turret struct <---
+struct Turret
+{
+    Vector2 position = { 0, 0 };
+};
+
 int main()
 {
     int tiles[TILE_COUNT][TILE_COUNT]
@@ -143,10 +152,8 @@ int main()
     minDistance *= 1.1f;
     bool atEnd = false;
 
-    float shootTimeCurrent = 0.0f;
-    float shootTimeTotal = 1.0f;
-
     std::vector<Bullet> bullets;
+    std::vector<Turret> turrets;// ---> added for turrets <---
 
     InitWindow(SCREEN_SIZE, SCREEN_SIZE, "Tower Defense");
     SetTargetFPS(60);
@@ -154,17 +161,23 @@ int main()
     {
         float dt = GetFrameTime();
 
-        shootTimeCurrent += dt;
-        if (shootTimeCurrent >= shootTimeTotal && IsKeyDown(KEY_SPACE))
+        if (turrets.size() < MAX_TURRETS)                //--->added click left mouse to create turret<---start
         {
-            shootTimeCurrent = 0.0f;
+            if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+            {
+                Vector2 mousePos = GetMousePosition();
+                int col = mousePos.x / TILE_SIZE;
+                int row = mousePos.y / TILE_SIZE;
 
-            // AB = B - A
-            Bullet bullet;
-            bullet.position = GetMousePosition();
-            bullet.direction = Vector2Normalize(enemyPosition - bullet.position);
-            bullets.push_back(bullet);
-        }
+				// only be placed on grass, will not be placed on dirt or waypoint
+                if (InBounds({ row, col }) && tiles[row][col] == GRASS)
+                {
+                    Turret newTurret;
+                    newTurret.position = TileCenter(row, col);
+                    turrets.push_back(newTurret);
+                }
+            }
+        }                                                //--->end<---end
 
         // 1) Update bullets
         for (Bullet& bullet : bullets)
@@ -217,11 +230,18 @@ int main()
                 DrawTile(row, col, tiles[row][col]);
             }
         }
+        // ---> to draw the turrets <---start
+        for (const auto& turret : turrets)
+        {
+            DrawCircleV(turret.position, TURRET_RADIUS, GRAY);//outer color of turret
+			DrawCircleV(turret.position, TURRET_RADIUS - 5, DARKGRAY); //inner color of turret
+		}// ---> end <---
 
         for (const Bullet& bullet : bullets)
         {
             DrawCircleV(bullet.position, BULLET_RADIUS, RED);
         }
+
 
         DrawCircleV(enemyPosition, 20.0f, GOLD);
         DrawText(TextFormat("%i", GetFPS()), 760, 10, 20, RED);
