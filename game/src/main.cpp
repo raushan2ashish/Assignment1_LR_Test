@@ -7,18 +7,19 @@
 #include <algorithm>
 
 constexpr float SCREEN_SIZE = 800;
-
 constexpr int TILE_COUNT = 20;
 constexpr float TILE_SIZE = SCREEN_SIZE / TILE_COUNT;
 
 constexpr float BULLET_RADIUS = 10.0f;
 constexpr float BULLET_SPEED = 400.0f;
 constexpr float BULLET_LIFE_TIME = 1.0f;
+constexpr int BULLET_DAMAGE = 50;// ---> damage for each bullet <---
 
-constexpr float TURRET_RADIUS = TILE_SIZE * 1.4f;// ---> added radius for turrets <---
+constexpr float TURRET_RADIUS = TILE_SIZE * 0.4f;// ---> added radius for turrets <---
 constexpr float TURRET_RANGE = 200.0f; //---> this defines the ranfe of the turrets <---
 constexpr float TURRET_SHOOT_COOLDOWN = 0.5f; //---> cooldown time for the turrets <---
 constexpr int MAX_TURRETS = 5;                   // ---> added number of maximum turrets <---
+constexpr float ENEMY_RADIUS = TILE_SIZE * 0.5f;// ---> radius for enemy <---
 
 enum TileType : int
 {
@@ -118,6 +119,15 @@ struct Turret
     Vector2 position = { 0, 0 };
     float shootTimer = 0.0f;// ---> added shooting countdown for each turret <---
 };
+// ---> added Enemy struct<---
+struct Enemy
+{
+    Vector2 position = { 0, 0 };
+    int health = 100;
+    float speed = 100.0f;
+    int waypointIndex = 0;
+    bool shouldBeDestroyed = false;
+};
 
 int main()
 {
@@ -146,14 +156,12 @@ int main()
             { 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }  // 19
     };
     std::vector<Cell> waypoints = FloodFill({ 0, 12 }, tiles, WAYPOINT);
-    int curr = 0;
-    int next = curr + 1;
-
-    Vector2 enemyPosition = TileCenter(waypoints[curr].row, waypoints[curr].col);
-    float enemySpeed = 250.0f;
-    float minDistance = enemySpeed / 60.0f;
-    minDistance *= 1.1f;
-    bool atEnd = false;
+    // ---> for first enemy <---
+    std::vector<Enemy> enemies;
+    Enemy firstEnemy;
+    firstEnemy.position = TileCenter(waypoints[0].row, waypoints[0].col);
+    firstEnemy.speed = 100.0f;
+    enemies.push_back(firstEnemy);
 
     std::vector<Bullet> bullets;
     std::vector<Turret> turrets;// ---> added for turrets <---
@@ -189,18 +197,20 @@ int main()
             if (turret.shootTimer >= TURRET_SHOOT_COOLDOWN)//--->when cooldown is over<---
             {
                 
-                float distance = Vector2Distance(turret.position, enemyPosition);//--->to check distance b/w turret and enemy<---
- 
-                if (distance < TURRET_RANGE)//--->shoot when enemy is in range<---
+                // --->find a target<---
+                if (!enemies.empty())
                 {
-                    
-                    turret.shootTimer = 0.0f;
+                    Enemy* target = &enemies[0]; 
+                    float distance = Vector2Distance(turret.position, target->position);
 
-                    //--->to create new bullet<---
-                    Bullet newBullet;
-                    newBullet.position = turret.position;
-                    newBullet.direction = Vector2Normalize(enemyPosition - turret.position);
-                    bullets.push_back(newBullet);
+                    if (distance < TURRET_RANGE)
+                    {
+                        turret.shootTimer = 0.0f;
+                        Bullet newBullet;
+                        newBullet.position = turret.position;
+                        newBullet.direction = Vector2Normalize(target->position - turret.position);
+                        bullets.push_back(newBullet);
+                    }
                 }
             }
         }
@@ -226,23 +236,44 @@ int main()
 
         // Hint: You'll need to add a system (remove_if) that flags enemies for deletion then removes them
         // Hint: To handle collision, you'll need a nested for-loop that tests all bullets vs all enemies
-
-        if (!atEnd)
+        
+        // ---> collision check <---
+        for (auto& bullet : bullets)
         {
-            Vector2 from = TileCenter(waypoints[curr].row, waypoints[curr].col);
-            Vector2 to = TileCenter(waypoints[next].row, waypoints[next].col);
-            Vector2 direction = Vector2Normalize(to - from);
-            enemyPosition += direction * enemySpeed * dt;
-
-            if (CheckCollisionPointCircle(enemyPosition, to, minDistance))
+            for (auto& enemy : enemies)
             {
-                enemyPosition = to;
-
-                curr++;
-                next++;
-                atEnd = curr == waypoints.size() - 1;
+                if (CheckCollisionCircles(bullet.position, BULLET_RADIUS, enemy.position, ENEMY_RADIUS))
+                {
+                    bullet.destroy = true; 
+                    enemy.health -= BULLET_DAMAGE;
+                    if (enemy.health <= 0)
+                    {
+                        enemy.shouldBeDestroyed = true; 
+                    }
+                }
             }
         }
+        // ---> enemy movement <---
+        for (auto& enemy : enemies)
+        {
+            if (enemy.waypointIndex < waypoints.size() - 1)
+            {
+                Vector2 targetWaypoint = TileCenter(waypoints[enemy.waypointIndex + 1].row, waypoints[enemy.waypointIndex + 1].col);
+                Vector2 direction = Vector2Normalize(targetWaypoint - enemy.position);
+                enemy.position += direction * enemy.speed * dt;
+
+                if (Vector2Distance(enemy.position, targetWaypoint) < 5.0f)
+                {
+                    enemy.position = targetWaypoint;
+                    enemy.waypointIndex++;
+                }
+            }
+        }
+
+        // ---> erase dead enemies <---
+        enemies.erase(std::remove_if(enemies.begin(), enemies.end(),
+            [](const Enemy& e) { return e.shouldBeDestroyed; }),
+            enemies.end());
 
         BeginDrawing();
         ClearBackground(BLACK);
@@ -260,15 +291,20 @@ int main()
         {
             DrawCircleV(turret.position, TURRET_RADIUS, GRAY);//outer color of turret
 			DrawCircleV(turret.position, TURRET_RADIUS - 5, DARKGRAY); //inner color of turret
-		}// ---> end <---
+		}
 
         for (const Bullet& bullet : bullets)
         {
             DrawCircleV(bullet.position, BULLET_RADIUS, RED);
         }
+        // ---> enemy drawing logicC <---
+        
+        for (const auto& enemy : enemies)
+        {
+            DrawCircleV(enemy.position, ENEMY_RADIUS, GOLD);
+        }
 
-
-        DrawCircleV(enemyPosition, 20.0f, GOLD);
+        
         DrawText(TextFormat("%i", GetFPS()), 760, 10, 20, RED);
 
         EndDrawing();
@@ -277,36 +313,3 @@ int main()
     return 0;
 }
 
-//std::vector<int> numbers{ 1, 1, 2, 2, 3, 3, 4, 4, 5, 5 };
-//for (int i = 0; i < numbers.size(); i++)
-//{
-//    if (numbers[i] % 2 == 1)
-//    {
-//        numbers.erase(numbers.begin() + i);
-//        i--;
-//    }
-//}
-//
-// 1, 1, 2, 2, 3, 3, 4, 4, 5, 5
-// 2, 2, 4, 4, 1, 1, 3, 3, 5, 5,
-//auto removeStart = std::remove_if(numbers.begin(), numbers.end(),
-//    [](int n)
-//    {
-//        // Return true if element should be removed!
-//        return n % 2 == 1;
-//    });
-//
-//// Note that remove_if only sorts the data. You must call erase separately to remove everything!
-//numbers.erase(removeStart, numbers.end());
-
-//for (int row = 0; row < TILE_COUNT; row++)
-//{
-//    float y = row * TILE_SIZE;
-//    DrawLineEx({ 0.0f, y }, { SCREEN_SIZE, y }, 2.0f, LIGHTGRAY);
-//}
-//
-//for (int col = 0; col < TILE_COUNT; col++)
-//{
-//    float x = col * TILE_SIZE;
-//    DrawLineEx({ x, 0.0f }, { x, SCREEN_SIZE }, 2.0f, LIGHTGRAY);
-//}
