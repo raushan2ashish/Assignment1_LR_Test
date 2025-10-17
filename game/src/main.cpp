@@ -160,7 +160,14 @@ Enemy CreateEnemy(EnemyType type, Vector2 startPos)
         enemy.speed = 80.0f;
         break;
 
-        //--->will add more enemy here<---
+    case FAST:
+        enemy.health = 75; 
+        enemy.speed = 150.0f; 
+        break;
+    case HEAVY:
+        enemy.health = 300; 
+        enemy.speed = 50.0f; 
+        break; 
     }
     return enemy;
 }
