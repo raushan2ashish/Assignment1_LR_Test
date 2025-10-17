@@ -373,15 +373,25 @@ int main()
             break;
 
             case LEVEL_WON:
-			{ // ---> when level is won, press Enter to play again<---
-                if (IsKeyPressed(KEY_ENTER))
+			{ 
+                // If player beats the final level, they win the game.
+                if (currentLevel == 3)
                 {
-					//---> rseting everything <---
-                    turrets.clear();
-                    bullets.clear();
-                    enemies.clear();
-                    currentState = STRATEGY_PHASE;
+					// You Won the Game!
                 }
+                else
+                {
+                    // ---> when level is won, press Enter to play again<---
+                    if (IsKeyPressed(KEY_ENTER))
+                    {
+                        currentLevel++;
+                        turrets.clear();
+                        bullets.clear();
+                        enemies.clear();
+                        currentState = STRATEGY_PHASE;
+                    }
+                }
+                
             }
             break;
 
@@ -390,6 +400,15 @@ int main()
                 if (IsKeyPressed(KEY_R)) 
                 {
                     // reset everything 
+                    turrets.clear();
+                    bullets.clear();
+                    enemies.clear();
+                    currentState = STRATEGY_PHASE;
+                }
+                else if (IsKeyPressed(KEY_S))
+                {
+                    // reset to level 1
+                    currentLevel = 1;
                     turrets.clear();
                     bullets.clear();
                     enemies.clear();
