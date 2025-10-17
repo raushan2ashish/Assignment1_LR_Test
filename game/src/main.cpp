@@ -252,6 +252,7 @@ int main()
                             Turret newTurret;
                             newTurret.position = TileCenter(row, col);
                             turrets.push_back(newTurret);
+							PlaySound(turretCreateSound);//--->play sound when turret is created<---
                         }
                     }
                 }
@@ -315,6 +316,7 @@ int main()
                                 newBullet.position = turret.position;
                                 newBullet.direction = Vector2Normalize(target->position - turret.position);
                                 bullets.push_back(newBullet);
+								PlaySound(turretShootSound);//---> play sound when turret shoots <---
                             }
                         }
                     }
@@ -354,6 +356,7 @@ int main()
                             if (enemy.health <= 0)
                             {
                                 enemy.shouldBeDestroyed = true;
+								PlaySound(enemyDeathSound);//---> play sound when enemy is destroyed <---
                             }
                         }
                     }
@@ -506,6 +509,14 @@ int main()
         }
         EndDrawing();
     }
+	// ---> unloading sounds and closing audio device <---
+    UnloadSound(turretCreateSound);
+    UnloadSound(turretDestroySound);
+    UnloadSound(turretShootSound);
+    UnloadSound(enemyHitSound);
+    UnloadSound(enemyDeathSound);
+    CloseAudioDevice();
+
     CloseWindow();
     return 0;
 }
