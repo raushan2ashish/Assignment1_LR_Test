@@ -334,9 +334,27 @@ int main()
                     bullet.position += bullet.direction * BULLET_SPEED * dt;
                     bullet.time += dt;
 
-                    bool expired = bullet.time >= BULLET_LIFE_TIME;
-                    bool collision = false;
-                    bullet.destroy = expired || collision;
+                    if (bullet.time >= BULLET_LIFE_TIME)
+                    {
+                        bullet.destroy = true;
+                    }
+                }
+                // ---> collision check <---
+                for (auto& bullet : bullets)
+                {
+                    for (auto& enemy : enemies)
+                    {
+                        if (CheckCollisionCircles(bullet.position, BULLET_RADIUS, enemy.position, ENEMY_RADIUS))
+                        {
+                            bullet.destroy = true;
+                            enemy.health -= BULLET_DAMAGE;
+                            if (enemy.health <= 0)
+                            {
+                                enemy.shouldBeDestroyed = true;
+                                PlaySound(enemyDeathSound);//---> play sound when enemy is destroyed <---
+                            }
+                        }
+                    }
                 }
 
                 // 2) Remove bullets
@@ -351,23 +369,7 @@ int main()
                 // Hint: You'll need to add a system (remove_if) that flags enemies for deletion then removes them
                 // Hint: To handle collision, you'll need a nested for-loop that tests all bullets vs all enemies
 
-                // ---> collision check <---
-                for (auto& bullet : bullets)
-                {
-                    for (auto& enemy : enemies)
-                    {
-                        if (CheckCollisionCircles(bullet.position, BULLET_RADIUS, enemy.position, ENEMY_RADIUS))
-                        {
-                            bullet.destroy = true;
-                            enemy.health -= BULLET_DAMAGE;
-                            if (enemy.health <= 0)
-                            {
-                                enemy.shouldBeDestroyed = true;
-								PlaySound(enemyDeathSound);//---> play sound when enemy is destroyed <---
-                            }
-                        }
-                    }
-                }
+                
                 // ---> enemy movement <---
                 for (auto& enemy : enemies)
                 {
