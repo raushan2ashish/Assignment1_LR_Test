@@ -457,22 +457,32 @@ int main()
         
         DrawText(TextFormat("%i", GetFPS()), 760, 10, 20, RED);
         if (currentState == STRATEGY_PHASE)
-        {
+		{//---> added text to show current level and remaining turrets to place <---
+            DrawText(TextFormat("LEVEL %d", currentLevel), 350, 10, 30, WHITE);
             DrawText(TextFormat("Place %d more turrets.", MAX_TURRETS - turrets.size()), 10, 10, 20, WHITE);
+            DrawText("Left-Click to build.", 10, 40, 20, WHITE);
         }
         else if (currentState == LEVEL_WON)
         {
-            DrawText("LEVEL COMPLETE!", 280, 350, 40, GREEN);
-            DrawText("Press [ENTER] to play again.", 250, 400, 20, WHITE);
+            if (currentLevel == 3)
+            {
+                DrawText("YOU WIN! CONGRATULATIONS!", 200, 350, 30, GREEN);
+            }
+            else
+            {
+                DrawText("LEVEL COMPLETE!", 280, 350, 40, GREEN);
+                DrawText("Press [ENTER] for the next level.", 240, 400, 20, WHITE);
+            }
         }
         else if (currentState == LEVEL_LOST)
         {
             DrawText("LEVEL FAILED!", 300, 350, 40, RED);
-            DrawText("Press [R] to retry.", 310, 400, 20, WHITE);
+            DrawText("Press [R] to Replay or [S] to Start Over.", 180, 400, 20, WHITE);
         }
         else 
         {
-            DrawText(TextFormat("Enemies remaining: ~%d", (enemiesToSpawn - enemiesSpawned) + enemies.size()), 10, 10, 20, WHITE);
+            DrawText(TextFormat("Level: %d", currentLevel), 10, 10, 20, WHITE);
+            DrawText(TextFormat("Enemies remaining: ~%d", (enemiesToSpawn - enemiesSpawned) + enemies.size()), 10, 40, 20, WHITE);
         }
         EndDrawing();
     }
