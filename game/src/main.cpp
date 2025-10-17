@@ -311,21 +311,32 @@ int main()
                     {
 
                         // --->find a target<---
-                        if (!enemies.empty())
-                        {
-                            Enemy* target = &enemies[0];
-                            float distance = Vector2Distance(turret.position, target->position);
+                        Enemy* nearestEnemy = nullptr;
+                        float minDistance = TURRET_RANGE;
+                        
+                       
 
-                            if (distance < TURRET_RANGE)
+                        for (auto& enemy : enemies)
+                        {
+                            float distance = Vector2Distance(turret.position, enemy.position);
+                            
+                            if (distance < minDistance)
                             {
-                                turret.shootTimer = 0.0f;
-                                Bullet newBullet;
-                                newBullet.position = turret.position;
-                                newBullet.direction = Vector2Normalize(target->position - turret.position);
-                                bullets.push_back(newBullet);
-								PlaySound(turretShootSound);//---> play sound when turret shoots <---
+                                minDistance = distance; 
+                                nearestEnemy = &enemy;  
                             }
                         }
+
+                        if (nearestEnemy != nullptr)
+                        {
+                            turret.shootTimer = 0.0f;
+                            Bullet newBullet;
+                            newBullet.position = turret.position;
+                            newBullet.direction = Vector2Normalize(nearestEnemy->position - turret.position);
+                            bullets.push_back(newBullet);
+                            PlaySound(turretShootSound);
+                        }
+                        
                     }
                 }
                 // 1) Update bullets
