@@ -416,7 +416,12 @@ int main()
         
         for (const auto& enemy : enemies)
         {
-            DrawCircleV(enemy.position, ENEMY_RADIUS, GOLD);
+			// --->Different enemy will have different color<---
+            Color enemyColor = GOLD; //--->NORMAL enemy
+			if (enemy.type == FAST) enemyColor = ORANGE; // --->FAST enemy
+			else if (enemy.type == HEAVY) enemyColor = MAROON;// --->HEAVY enemy
+
+            DrawCircleV(enemy.position, ENEMY_RADIUS, enemyColor);
         }
 
         
