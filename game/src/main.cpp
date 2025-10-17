@@ -223,11 +223,18 @@ int main()
 
     InitWindow(SCREEN_SIZE, SCREEN_SIZE, "Tower Defense");
     InitAudioDevice();
+	//---> load sounds <---
     Sound turretCreateSound = LoadSound("create.wav");
     Sound turretDestroySound = LoadSound("destroy.wav");
     Sound turretShootSound = LoadSound("shoot.wav");
     Sound enemyHitSound = LoadSound("hit.wav");
     Sound enemyDeathSound = LoadSound("death.wav");
+	//---> load textures/Sprites <---
+    Texture2D turretTexture = LoadTexture("turret.png");
+    Texture2D bulletTexture = LoadTexture("bullet.png");
+    Texture2D enemyNormalTexture = LoadTexture("enemy_normal.png");
+    Texture2D enemyFastTexture = LoadTexture("enemy_fast.png");
+    Texture2D enemyHeavyTexture = LoadTexture("enemy_heavy.png");
 
     SetTargetFPS(60);
     while (!WindowShouldClose())
