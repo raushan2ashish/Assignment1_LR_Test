@@ -251,7 +251,10 @@ int main()
                 if (turrets.size() >= MAX_TURRETS)
                 {
                     currentState = COMBAT_PHASE;
-                    enemiesToSpawn = level1_wave.size();
+                    if (currentLevel == 1) current_wave = level1_wave;
+                    else if (currentLevel == 2) current_wave = level2_wave;
+                    else if (currentLevel == 3) current_wave = level3_wave;
+                    enemiesToSpawn = current_wave.size();
                     enemiesSpawned = 0;
                     spawnTimer = 0.0f;
                 }
@@ -266,8 +269,8 @@ int main()
                 {
                     spawnTimer = 0.0f;
                     Vector2 startPos = TileCenter(waypoints[0].row, waypoints[0].col);
-                    EnemyType typeToSpawn = level1_wave[enemiesSpawned];
-                    enemies.push_back(CreateEnemy(typeToSpawn, startPos));
+                    EnemyType typeToSpawn = current_wave[enemiesSpawned];
+                    enemies.push_back(CreateEnemy(typeToSpawn, startPos, currentLevel));
                     enemiesSpawned++;
                 }
 
