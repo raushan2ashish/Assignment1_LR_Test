@@ -255,6 +255,19 @@ int main()
                         }
                     }
                 }
+				if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT))//---> added right click to destroy turret <---
+                {
+                    Vector2 mousePos = GetMousePosition();
+                    for (int i = 0; i < turrets.size(); ++i)
+                    {
+                        if (CheckCollisionPointCircle(mousePos, turrets[i].position, TURRET_RADIUS))
+                        {
+                            turrets.erase(turrets.begin() + i);
+                            PlaySound(turretDestroySound); 
+                            break; 
+                        }
+                    }
+                }
                 if (turrets.size() >= MAX_TURRETS)
                 {
                     currentState = COMBAT_PHASE;
