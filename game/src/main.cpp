@@ -146,27 +146,29 @@ struct Enemy
     int waypointIndex = 0;
     bool shouldBeDestroyed = false;
 };
-Enemy CreateEnemy(EnemyType type, Vector2 startPos)
+Enemy CreateEnemy(EnemyType type, Vector2 startPos, int level)
 {
     Enemy enemy;
     enemy.type = type;
     enemy.position = startPos;
     enemy.waypointIndex = 0; //--->to make sure , enemy start from 1st waypoint <---
-
+	//---> multiplying health and speed to increase the level of difficuilty <---
+    float healthMultiplier = 1.0f + (level - 1) * 0.5f; 
+    float speedMultiplier = 1.0f + (level - 1) * 0.25f; 
     switch (type)
     {
     case NORMAL:
-        enemy.health = 100;
-        enemy.speed = 80.0f;
+        enemy.health = 100 * healthMultiplier;
+        enemy.speed = 80.0f  * speedMultiplier;
         break;
 
     case FAST:
-        enemy.health = 75; 
-        enemy.speed = 150.0f; 
+        enemy.health = 75 * healthMultiplier;
+        enemy.speed = 150.0f * speedMultiplier;
         break;
     case HEAVY:
-        enemy.health = 300; 
-        enemy.speed = 50.0f; 
+        enemy.health = 300 * healthMultiplier;
+        enemy.speed = 50.0f * speedMultiplier;
         break; 
     }
     return enemy;
@@ -200,6 +202,12 @@ int main()
     std::vector<Cell> waypoints = FloodFill({ 0, 12 }, tiles, WAYPOINT);
 	//---> enemy wave coming in first level, all will be normal enemies <---
     std::vector<EnemyType> level1_wave = { NORMAL, NORMAL, FAST, NORMAL, HEAVY, FAST, NORMAL, NORMAL, FAST, HEAVY };
+    // ---> adding new variable for new levels <---
+    std::vector<EnemyType> level2_wave = { FAST, FAST, FAST, HEAVY, HEAVY, NORMAL, NORMAL, FAST, HEAVY, FAST, FAST, HEAVY };
+    std::vector<EnemyType> level3_wave = { HEAVY, HEAVY, HEAVY, FAST, FAST, NORMAL, NORMAL, FAST, HEAVY, HEAVY, FAST, NORMAL, HEAVY, FAST, HEAVY };
+    std::vector<EnemyType> current_wave;
+
+    int currentLevel = 1;
 
     // ---> for first enemy <---
     std::vector<Enemy> enemies;
