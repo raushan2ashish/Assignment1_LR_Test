@@ -49,6 +49,8 @@ enum GameState
 enum EnemyType
 {
     NORMAL, 
+	FAST,       // ---> will move faster than the normal one <---
+	HEAVY,      // ---> will move slowely but have more health <---
 };
 
 inline bool InBounds(Cell cell, int rows = TILE_COUNT, int cols = TILE_COUNT)
