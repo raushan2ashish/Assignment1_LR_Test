@@ -13,7 +13,7 @@ constexpr float TILE_SIZE = SCREEN_SIZE / TILE_COUNT;
 constexpr float BULLET_RADIUS = 10.0f;
 constexpr float BULLET_SPEED = 400.0f;
 constexpr float BULLET_LIFE_TIME = 1.0f;
-constexpr int BULLET_DAMAGE = 50;// ---> damage for each bullet <---
+constexpr int BULLET_DAMAGE = 25;// ---> damage for each bullet <---
 
 constexpr float TURRET_RADIUS = TILE_SIZE * 0.4f;// ---> added radius for turrets <---
 constexpr float TURRET_RANGE = 200.0f; //---> this defines the ranfe of the turrets <---
