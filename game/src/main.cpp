@@ -199,7 +199,7 @@ int main()
     };
     std::vector<Cell> waypoints = FloodFill({ 0, 12 }, tiles, WAYPOINT);
 	//---> enemy wave coming in first level, all will be normal enemies <---
-    std::vector<EnemyType> level1_wave = { NORMAL, NORMAL, NORMAL, NORMAL, NORMAL, NORMAL, NORMAL, NORMAL, NORMAL, NORMAL };
+    std::vector<EnemyType> level1_wave = { NORMAL, NORMAL, FAST, NORMAL, HEAVY, FAST, NORMAL, NORMAL, FAST, HEAVY };
 
     // ---> for first enemy <---
     std::vector<Enemy> enemies;
