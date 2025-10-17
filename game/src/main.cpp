@@ -222,6 +222,13 @@ int main()
 	float spawnInterval = 1.0f; // ---> enemy spawn after second <---
 
     InitWindow(SCREEN_SIZE, SCREEN_SIZE, "Tower Defense");
+    InitAudioDevice();
+    Sound turretCreateSound = LoadSound("create.wav");
+    Sound turretDestroySound = LoadSound("destroy.wav");
+    Sound turretShootSound = LoadSound("shoot.wav");
+    Sound enemyHitSound = LoadSound("hit.wav");
+    Sound enemyDeathSound = LoadSound("death.wav");
+
     SetTargetFPS(60);
     while (!WindowShouldClose())
     {
