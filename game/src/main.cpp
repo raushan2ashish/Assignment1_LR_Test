@@ -464,24 +464,22 @@ int main()
         // ---> to draw the turrets <---start
         for (const auto& turret : turrets)
         {
-            DrawCircleV(turret.position, TURRET_RADIUS, GRAY);//outer color of turret
-			DrawCircleV(turret.position, TURRET_RADIUS - 5, DARKGRAY); //inner color of turret
+            DrawTexture(turretTexture, turret.position.x - TILE_SIZE / 2, turret.position.y - TILE_SIZE / 2, WHITE);
 		}
 
         for (const Bullet& bullet : bullets)
         {
-            DrawCircleV(bullet.position, BULLET_RADIUS, RED);
+            DrawTexture(bulletTexture, bullet.position.x - bulletTexture.width / 2, bullet.position.y - bulletTexture.height / 2, WHITE);
         }
         // ---> enemy drawing logicC <---
         
         for (const auto& enemy : enemies)
         {
-			// --->Different enemy will have different color<---
-            Color enemyColor = GOLD; //--->NORMAL enemy
-			if (enemy.type == FAST) enemyColor = ORANGE; // --->FAST enemy
-			else if (enemy.type == HEAVY) enemyColor = MAROON;// --->HEAVY enemy
+            Texture2D enemyTexture = enemyNormalTexture;
+            if (enemy.type == FAST) enemyTexture = enemyFastTexture;
+            else if (enemy.type == HEAVY) enemyTexture = enemyHeavyTexture;
 
-            DrawCircleV(enemy.position, ENEMY_RADIUS, enemyColor);
+            DrawTexture(enemyTexture, enemy.position.x - TILE_SIZE / 2, enemy.position.y - TILE_SIZE / 2, WHITE);
         }
 
         
@@ -522,6 +520,14 @@ int main()
     UnloadSound(turretShootSound);
     UnloadSound(enemyHitSound);
     UnloadSound(enemyDeathSound);
+	// ---> unloading textures <---
+    UnloadTexture(turretTexture);
+    UnloadTexture(bulletTexture);
+    UnloadTexture(enemyNormalTexture);
+    UnloadTexture(enemyFastTexture);
+    UnloadTexture(enemyHeavyTexture);
+
+
     CloseAudioDevice();
 
     CloseWindow();
